@@ -1,0 +1,19 @@
+{
+  "name": "Playwright Test User",
+  "emailPrefix": "playwright-",
+  "emailDomain": "@example.com",
+  "password": "Playwright!2026",
+  "day": "15",
+  "month": "5",
+  "year": "1990",
+  "firstName": "Playwright",
+  "lastName": "Tester",
+  "company": "Example QA",
+  "address": "123 Test Street",
+  "address2": "Suite 4",
+  "country": "United States",
+  "state": "California",
+  "city": "Los Angeles",
+  "zipcode": "90001",
+  "mobileNumber": "5551234567"
+}

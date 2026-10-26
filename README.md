@@ -30,6 +30,10 @@ npm run test:ui
 npm run test:report
 ```
 
-Les tests couvrent le chargement de la page Test Cases, la présence des 26 scénarios, l'ouverture d'un scénario ainsi que les sections d'instructions et de retour utilisateur. Le Test Case 1 automatise l'inscription complète avec des données uniques et supprime le compte créé à la fin.
+Les tests sont organisés sous `tests/e2e/` par domaine (`account`, `login` et `site`). Les objets de page sont dans `pages/`, les sélecteurs et textes dans `constants/`, et les données de compte de test dans `test-data/`.
 
-Les sélecteurs, textes d'interface et données de test sont centralisés dans `tests/constants/`.
+La suite couvre le chargement de la page Test Cases, la présence des 26 scénarios, l'ouverture d'un scénario, l'inscription, la connexion avec un compte de test (Test Case 2), le refus d'identifiants invalides (Test Case 3), la déconnexion (Test Case 4) et le refus d'inscription avec une adresse déjà enregistrée (Test Case 5).
+
+Le Test Case 2 crée un compte jetable avec le parcours d'inscription dans son `beforeEach`, le déconnecte avant le scénario de connexion, puis le supprime dans son `afterEach`. L'adresse email est unique à chaque exécution.
+
+Le périmètre actuel ne contient pas de tests API ni de scénarios catalog/cart/checkout ; leurs dossiers et clients API seront ajoutés avec ces suites plutôt que sous forme d'emplacements vides.

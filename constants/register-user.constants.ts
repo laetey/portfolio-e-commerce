@@ -1,14 +1,12 @@
 export const REGISTER_USER = {
   route: '/login',
   signupForm: 'form[action="/signup"]',
-  consent: {
-    buttonName: 'Consent',
-  },
   signup: {
     heading: 'New User Signup!',
     nameField: '[name="name"]',
     emailField: '[name="email"]',
     buttonName: 'Signup',
+    existingEmailError: 'Email Address already exist!',
   },
   account: {
     heading: 'ENTER ACCOUNT INFORMATION',
@@ -37,24 +35,5 @@ export const REGISTER_USER = {
     continueLinkName: 'Continue',
     loggedInAsPrefix: 'Logged in as ',
     deleteAccountLinkName: 'Delete Account',
-  },
-  data: {
-    name: 'Playwright Test User',
-    emailPrefix: 'playwright-',
-    emailDomain: '@example.com',
-    password: 'Playwright!2026',
-    day: '15',
-    month: '5',
-    year: '1990',
-    firstName: 'Playwright',
-    lastName: 'Tester',
-    company: 'Example QA',
-    address: '123 Test Street',
-    address2: 'Suite 4',
-    country: 'United States',
-    state: 'California',
-    city: 'Los Angeles',
-    zipcode: '90001',
-    mobileNumber: '5551234567',
   },
 } as const;
