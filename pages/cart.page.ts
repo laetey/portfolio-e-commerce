@@ -133,4 +133,10 @@ export class CartPage extends HomePage {
   productTotalCell(productName: string): Locator {
     return this.productRow(productName).getByRole('cell').nth(4);
   }
+
+  async removeProduct(productName: string): Promise<void> {
+    await this.productRow(productName)
+      .locator(CART.removeProductSelector)
+      .click();
+  }
 }

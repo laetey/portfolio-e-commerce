@@ -68,6 +68,7 @@ test.describe('Cart test cases', () => {
       page,
     }) => {
       const cartPage = new CartPage(page);
+      const productsInCart = CART.products.slice(0, 2);
 
       await test.step('Open Products and verify the product list', async () => {
         await cartPage.openProducts();
@@ -89,7 +90,7 @@ test.describe('Cart test cases', () => {
       });
 
       await test.step('Verify both products, prices, quantities, and totals', async () => {
-        for (const product of CART.products) {
+        for (const product of productsInCart) {
           await expect(cartPage.productRow(product.name)).toBeVisible();
           await expect(cartPage.productPriceCell(product.name)).toHaveText(
             product.price,
@@ -143,6 +144,48 @@ test.describe('Cart test cases', () => {
         await expect(
           cartPage.productQuantityCell(CART.quantityTest.productName),
         ).toHaveText(CART.quantityTest.quantity);
+      });
+    });
+  });
+
+  test.describe('Test Case 17: Remove Products From Cart', () => {
+    test('removes the selected product from the cart', async ({ page }) => {
+      const cartPage = new CartPage(page);
+      const productToRemove = CART.products[0];
+      var productsToKeep = CART.products.slice(1);
+
+      await test.step('Add two products and open the cart', async () => {
+        await cartPage.openProducts();
+        await expect(page).toHaveTitle(PRODUCTS.title);
+
+        for(let i = 0; i < CART.products.length; i++)
+        {
+          await cartPage.addProductToCart(i);
+          await expect(cartPage.addedHeading).toBeVisible();
+          if(i < CART.products.length-1)
+            await cartPage.continueShopping();
+          else {
+            await cartPage.viewCartFromDialog();
+            await expect(page).toHaveURL(new RegExp(`${CART.route}$`));
+          }
+        }
+        
+      });
+
+      await test.step('Verify both products are in the cart', async () => {
+        await expect(cartPage.productRow(productToRemove.name)).toBeVisible();
+        await expect(cartPage.productRow(productsToKeep[0].name)).toBeVisible();
+        await expect(cartPage.productRow(productsToKeep[1].name)).toBeVisible();
+      });
+
+      await test.step('Remove the selected product from the cart', async () => {
+        await cartPage.removeProduct(productToRemove.name);
+        await expect(cartPage.productRow(productToRemove.name)).toHaveCount(0);
+      });
+
+      await test.step('Verify the other cart product remains', async () => {
+        await expect(cartPage.productRow(productsToKeep[0].name)).toBeVisible();
+        await expect(cartPage.productRow(productsToKeep[1].name)).toBeVisible();
       });
     });
   });
