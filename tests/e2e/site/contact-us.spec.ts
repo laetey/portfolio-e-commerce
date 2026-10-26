@@ -24,6 +24,8 @@ test.describe('Test Case 6: Contact Us Form', () => {
 
     await test.step('Open Contact Us and verify the form is displayed', async () => {
       await homePage.openContactUs();
+      await contactUsPage.dismissConsentIfVisible();
+      await contactUsPage.waitForSubmissionHandler();
       await expect(contactUsPage.heading).toBeVisible();
     });
 
@@ -33,18 +35,19 @@ test.describe('Test Case 6: Contact Us Form', () => {
     });
 
     await test.step('Submit the form and accept the confirmation dialog', async () => {
-      let confirmationAccepted = false;
+      let dialogType: string | undefined;
       page.once('dialog', async (dialog) => {
-        expect(dialog.type()).toBe('confirm');
+        dialogType = dialog.type();
         await dialog.accept();
-        confirmationAccepted = true;
       });
       await contactUsPage.submit();
-      expect(confirmationAccepted).toBe(true);
+      expect(dialogType).toBe('confirm');
     });
 
     await test.step('Verify successful submission and return to home', async () => {
-      await expect(contactUsPage.successMessage).toBeVisible();
+      await expect(contactUsPage.successMessage).toHaveText(
+        CONTACT_US.successMessage,
+      );
       await contactUsPage.returnHome();
       await expect(page).toHaveTitle(HOME.titlePattern);
       await expect(

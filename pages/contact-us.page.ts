@@ -1,6 +1,7 @@
 import type { Locator, Page } from '@playwright/test';
 import { CONTACT_US } from '../constants/contact-us.constants';
 import { BasePage } from './base.page';
+import { HOME } from '../constants/home.constants';
 
 export class ContactUsPage extends BasePage {
   constructor(page: Page) {
@@ -15,7 +16,28 @@ export class ContactUsPage extends BasePage {
   }
 
   get successMessage(): Locator {
-    return this.page.getByText(CONTACT_US.successMessage, { exact: true });
+    return this.page.locator(CONTACT_US.successMessageSelector);
+  }
+
+  async waitForSubmissionHandler(): Promise<void> {
+    await this.page.waitForFunction((selector) => {
+      const form = document.querySelector(selector);
+      const jquery = Reflect.get(window, '$');
+      if (!form || typeof jquery !== 'function') {
+        return false;
+      }
+
+      const getData = Reflect.get(jquery, '_data');
+      if (typeof getData !== 'function') {
+        return false;
+      }
+
+      const events = Reflect.apply(getData, jquery, [
+        form,
+        'events',
+      ]) as { submit?: unknown[] } | undefined;
+      return Boolean(events?.submit?.length);
+    }, CONTACT_US.formSelector);
   }
 
   async fillContactForm(data: {
@@ -42,7 +64,7 @@ export class ContactUsPage extends BasePage {
 
   async returnHome(): Promise<void> {
     await this.page
-      .getByRole('link', { name: CONTACT_US.homeButtonName, exact: true })
+      .getByRole('button', { name: HOME.nav.homeLink, exact: true })
       .click();
   }
 }
