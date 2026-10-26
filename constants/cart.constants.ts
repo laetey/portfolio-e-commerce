@@ -4,6 +4,8 @@ export const CART = {
   addedHeading: 'Added!',
   continueShoppingButton: 'Continue Shopping',
   viewCartLink: 'View Cart',
+  proceedToCheckout: 'Proceed To Checkout',
+  registerLoginLink: 'Register / Login',
   quantityTest: {
     productName: 'Blue Top',
     quantity: '4',
