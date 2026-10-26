@@ -95,3 +95,51 @@ test.describe('Test Case 9: Search Product', () => {
     });
   });
 });
+
+test.describe('Test Case 19: View & Cart Brand Products', () => {
+  test.beforeEach(async ({ page }) => {
+    const homePage = new HomePage(page);
+
+    await test.step('Open the home page before the scenario', async () => {
+      await homePage.gotoHome();
+      await homePage.dismissConsentIfVisible();
+      await expect(page).toHaveTitle(HOME.titlePattern);
+    });
+  });
+
+  test.afterEach(async ({ page }) => {
+    const homePage = new HomePage(page);
+
+    await test.step('Return to the home page after the scenario', async () => {
+      await homePage.gotoHome();
+      await homePage.dismissConsentIfVisible();
+      await expect(page).toHaveTitle(HOME.titlePattern);
+    });
+  });
+
+  test('opens two brand pages and verifies their products', async ({ page }) => {
+    const productsPage = new ProductsPage(page);
+
+    await test.step('Open Products and verify the brand list', async () => {
+      await productsPage.gotoProducts();
+      await expect(page).toHaveTitle(PRODUCTS.title);
+      await expect(productsPage.allProductsHeading).toBeVisible();
+      await expect(productsPage.brandsHeading).toBeVisible();
+
+      for (const brandName of PRODUCTS.brandProducts.brands) {
+        await expect(productsPage.brandLink(brandName)).toBeVisible();
+      }
+    });
+
+    for (const brandName of PRODUCTS.brandProducts.brands) {
+      await test.step(`Open ${brandName} and verify its product listing`, async () => {
+        await productsPage.openBrand(brandName);
+        await expect(page).toHaveURL(
+          new RegExp(`/brand_products/${brandName}$`, 'i'),
+        );
+        await expect(productsPage.brandProductsHeading(brandName)).toBeVisible();
+        await expect(productsPage.firstViewProductLink).toBeVisible();
+      });
+    }
+  });
+});

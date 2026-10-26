@@ -14,6 +14,13 @@ export class ProductsPage extends BasePage {
     });
   }
 
+  get brandsHeading(): Locator {
+    return this.page.getByRole('heading', {
+      name: PRODUCTS.brandsHeading,
+      exact: true,
+    });
+  }
+
   get firstViewProductLink(): Locator {
     return this.page
       .getByRole('link', {
@@ -81,6 +88,21 @@ export class ProductsPage extends BasePage {
       .filter({ hasText: PRODUCTS.firstProduct.brand });
   }
 
+  brandLink(brandName: string): Locator {
+    return this.page.getByRole('link', {
+      name: new RegExp(`^\\(\\d+\\)\\s*${brandName}$`, 'i'),
+    });
+  }
+
+  brandProductsHeading(brandName: string): Locator {
+    return this.page.getByRole('heading', {
+      name: new RegExp(
+        `${PRODUCTS.brandProducts.headingPrefix}${brandName}${PRODUCTS.brandProducts.headingSuffix}`,
+        'i',
+      ),
+    });
+  }
+
   async gotoProducts(): Promise<void> {
     await this.goto(PRODUCTS.route);
     await this.dismissConsentIfVisible();
@@ -93,5 +115,9 @@ export class ProductsPage extends BasePage {
   async searchForProduct(productName: string): Promise<void> {
     await this.searchInput.fill(productName);
     await this.searchButton.click();
+  }
+
+  async openBrand(brandName: string): Promise<void> {
+    await this.brandLink(brandName).click();
   }
 }

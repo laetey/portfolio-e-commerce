@@ -3,6 +3,12 @@ export const PRODUCTS = {
   title: 'Automation Exercise - All Products',
   allProductsHeading: 'All Products',
   viewProductLinkName: 'View Product',
+  brandsHeading: 'Brands',
+  brandProducts: {
+    brands: ['Polo', 'H&M'],
+    headingPrefix: 'Brand - ',
+    headingSuffix: ' Products',
+  },
   productDetailsTitle: 'Automation Exercise - Product Details',
   search: {
     inputLabel: 'Search Product',
