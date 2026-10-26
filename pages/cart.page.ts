@@ -37,6 +37,31 @@ export class CartPage extends HomePage {
     });
   }
 
+  get productQuantityInput(): Locator {
+    return this.page.getByRole('spinbutton');
+  }
+
+  get productDetailsAddToCartButton(): Locator {
+    return this.page.getByRole('button', {
+      name: /Add to cart/i,
+    });
+  }
+
+  async openFirstProductFromHome(): Promise<void> {
+    await this.page
+      .getByRole('link', { name: PRODUCTS.viewProductLinkName })
+      .first()
+      .click();
+  }
+
+  async setProductQuantity(quantity: string): Promise<void> {
+    await this.productQuantityInput.fill(quantity);
+  }
+
+  async addProductDetailsToCart(): Promise<void> {
+    await this.productDetailsAddToCartButton.click();
+  }
+
   async openCart(): Promise<void> {
     await this.page
       .getByRole('link', { name: HOME.nav.cartLink })

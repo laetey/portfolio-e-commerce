@@ -97,4 +97,46 @@ test.describe('Cart test cases', () => {
       });
     });
   });
+
+  test.describe('Test Case 13: Verify Product quantity in Cart', () => {
+    test('adds the selected product with the requested quantity', async ({
+      page,
+    }) => {
+      const cartPage = new CartPage(page);
+
+      await test.step('Open the first product from the home page', async () => {
+        await cartPage.openFirstProductFromHome();
+        await expect(page).toHaveTitle(PRODUCTS.productDetailsTitle);
+        await expect(
+          page.getByRole('heading', {
+            name: CART.quantityTest.productName,
+            exact: true,
+          }),
+        ).toBeVisible();
+      });
+
+      await test.step('Set the product quantity to four', async () => {
+        await cartPage.setProductQuantity(CART.quantityTest.quantity);
+        await expect(cartPage.productQuantityInput).toHaveValue(
+          CART.quantityTest.quantity,
+        );
+      });
+
+      await test.step('Add the product to the cart and open the cart', async () => {
+        await cartPage.addProductDetailsToCart();
+        await expect(cartPage.addedHeading).toBeVisible();
+        await cartPage.viewCartFromDialog();
+        await expect(page).toHaveURL(new RegExp(`${CART.route}$`));
+      });
+
+      await test.step('Verify the product appears with the selected quantity', async () => {
+        await expect(
+          cartPage.productRow(CART.quantityTest.productName),
+        ).toBeVisible();
+        await expect(
+          cartPage.productQuantityCell(CART.quantityTest.productName),
+        ).toHaveText(CART.quantityTest.quantity);
+      });
+    });
+  });
 });
