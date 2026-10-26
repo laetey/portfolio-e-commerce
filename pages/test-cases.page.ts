@@ -15,7 +15,9 @@ export class TestCasesPage extends BasePage {
   }
 
   get scenarioLinks(): Locator {
-    return this.page.locator(TEST_CASES_PAGE.scenarioLinkSelector);
+    return this.page.getByRole('link', {
+      name: TEST_CASES_PAGE.scenarioLinkNamePattern,
+    });
   }
 
   get firstScenarioLink(): Locator {
@@ -30,8 +32,10 @@ export class TestCasesPage extends BasePage {
     });
   }
 
-  get scenario7Steps(): Locator {
-    return this.page.locator(TEST_CASES_PAGE.scenario7PanelSelector);
+  scenario7Step(stepText: string): Locator {
+    return this.page
+      .getByRole('listitem')
+      .filter({ hasText: stepText });
   }
 
   get instructionsHeading(): Locator {
