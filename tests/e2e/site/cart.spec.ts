@@ -147,7 +147,7 @@ test.describe('Cart test cases', () => {
     });
   });
 
-  test.describe('Test Case 14: Place Order: Register while Checkout', () => {
+  test.describe('Order placement with registration', () => {
     let accountEmail: string;
     let accountCreated = false;
 
@@ -179,34 +179,36 @@ test.describe('Cart test cases', () => {
       });
     });
 
-    test('registers during checkout and completes an order', async ({
-      page,
-    }) => {
-      const cartPage = new CartPage(page);
-      const checkoutPage = new CheckoutPage(page);
-      const registerUserPage = new RegisterUserPage(page);
-      const homePage = new HomePage(page);
+    test.describe('Test Case 14: Place Order: Register while Checkout', () => {
 
-      await test.step('Add products to the cart', async () => {
-        await cartPage.openProducts();
-        await expect(page).toHaveTitle(PRODUCTS.title);
+      test('registers during checkout and completes an order', async ({
+        page,
+      }) => {
+        const cartPage = new CartPage(page);
+        const checkoutPage = new CheckoutPage(page);
+        const registerUserPage = new RegisterUserPage(page);
+        const homePage = new HomePage(page);
 
-        await cartPage.addProductToCart(0);
-        await expect(cartPage.addedHeading).toBeVisible();
-        await cartPage.continueShopping();
+        await test.step('Add products to the cart', async () => {
+          await cartPage.openProducts();
+          await expect(page).toHaveTitle(PRODUCTS.title);
 
-        await cartPage.addProductToCart(1);
-        await expect(cartPage.addedHeading).toBeVisible();
-        await cartPage.viewCartFromDialog();
-        await expect(page).toHaveURL(new RegExp(`${CART.route}$`));
-      });
+          await cartPage.addProductToCart(0);
+          await expect(cartPage.addedHeading).toBeVisible();
+          await cartPage.continueShopping();
 
-      await test.step('Start checkout and choose Register / Login', async () => {
-        await cartPage.proceedToCheckout();
-        await expect(cartPage.registerLoginLink).toBeVisible();
-        await cartPage.registerLoginFromCheckout();
-        await expect(page).toHaveURL(/\/login$/);
-        await expect(registerUserPage.signupHeading).toBeVisible();
+          await cartPage.addProductToCart(1);
+          await expect(cartPage.addedHeading).toBeVisible();
+          await cartPage.viewCartFromDialog();
+          await expect(page).toHaveURL(new RegExp(`${CART.route}$`));
+        });
+
+        await test.step('Start checkout and choose Register / Login', async () => {
+          await cartPage.proceedToCheckout();
+          await expect(cartPage.registerLoginLink).toBeVisible();
+          await cartPage.registerLoginFromCheckout();
+          await expect(page).toHaveURL(/\/login$/);
+          await expect(registerUserPage.signupHeading).toBeVisible();
       });
 
       await test.step('Create an account from the checkout flow', async () => {
@@ -265,6 +267,99 @@ test.describe('Cart test cases', () => {
           })
           .click();
       });
+      });
+    });
+
+    test.describe('Test Case 15: Place Order: Register before Checkout', () => {
+
+      test('registers before checkout and completes an order', async ({ page }) => {
+        const cartPage = new CartPage(page);
+        const checkoutPage = new CheckoutPage(page);
+        const homePage = new HomePage(page);
+        const registerUserPage = new RegisterUserPage(page);
+
+        await test.step('Register a new account before shopping', async () => {
+          await homePage.openLogin();
+          await expect(registerUserPage.signupHeading).toBeVisible();
+          await registerUserPage.startRegistration(
+            registrationUser.name,
+            accountEmail,
+          );
+          await expect(registerUserPage.accountHeading).toBeVisible();
+          await registerUserPage.completeRegistration(registrationUser);
+          await expect(registerUserPage.accountCreatedHeading).toBeVisible();
+          accountCreated = true;
+          await registerUserPage.continueAfterAccountCreation();
+          await expect(homePage.loggedInAs).toBeVisible();
+        });
+
+        await test.step('Add two products and open the cart', async () => {
+          await cartPage.openProducts();
+          await expect(page).toHaveTitle(PRODUCTS.title);
+          await expect(cartPage.allProductsHeading).toBeVisible();
+
+          await cartPage.addProductToCart(0);
+          await expect(cartPage.addedHeading).toBeVisible();
+          await cartPage.continueShopping();
+
+          await cartPage.addProductToCart(1);
+          await expect(cartPage.addedHeading).toBeVisible();
+          await cartPage.viewCartFromDialog();
+          await expect(page).toHaveURL(new RegExp(`${CART.route}$`));
+        });
+
+        await test.step('Verify the cart and checkout address details', async () => {
+          for (const product of CART.products) {
+            await expect(cartPage.productRow(product.name)).toBeVisible();
+            await expect(cartPage.productPriceCell(product.name)).toHaveText(
+              product.price,
+            );
+            await expect(cartPage.productQuantityCell(product.name)).toHaveText(
+              product.quantity,
+            );
+            await expect(cartPage.productTotalCell(product.name)).toHaveText(
+              product.total,
+            );
+          }
+
+          await cartPage.proceedToCheckout();
+          await expect(checkoutPage.deliveryAddressHeading).toBeVisible();
+          await expect(checkoutPage.billingAddressHeading).toBeVisible();
+          await expect(checkoutPage.reviewOrderHeading).toBeVisible();
+          await expect(
+            checkoutPage.addressDetail(
+              `Mr. ${registrationUser.firstName} ${registrationUser.lastName}`,
+            ),
+          ).toHaveCount(2);
+          await expect(
+            checkoutPage.addressDetail(registrationUser.address),
+          ).toHaveCount(2);
+        });
+
+        await test.step('Enter an order comment and place the order', async () => {
+          await checkoutPage.enterOrderComment(CHECKOUT.comment);
+          await checkoutPage.placeOrder();
+          await expect(checkoutPage.paymentHeading).toBeVisible();
+        });
+
+        await test.step('Submit payment and verify the order confirmation', async () => {
+          await checkoutPage.enterPaymentDetails();
+          await checkoutPage.payAndConfirmOrder();
+          await expect(checkoutPage.orderSuccessMessage).toBeVisible();
+        });
+
+        await test.step('Delete the registered account', async () => {
+          await homePage.deleteAccount();
+          await expect(homePage.deletedHeading).toBeVisible();
+          accountCreated = false;
+          await page
+            .getByRole('link', {
+              name: REGISTER_USER.confirmation.continueLinkName,
+              exact: true,
+            })
+            .click();
+        });
+    });
     });
   });
 });
