@@ -180,7 +180,6 @@ test.describe('Cart test cases', () => {
     });
 
     test.describe('Test Case 14: Place Order: Register while Checkout', () => {
-
       test('registers during checkout and completes an order', async ({
         page,
       }) => {
@@ -266,12 +265,11 @@ test.describe('Cart test cases', () => {
             exact: true,
           })
           .click();
-      });
+        });
       });
     });
 
     test.describe('Test Case 15: Place Order: Register before Checkout', () => {
-
       test('registers before checkout and completes an order', async ({ page }) => {
         const cartPage = new CartPage(page);
         const checkoutPage = new CheckoutPage(page);
@@ -359,7 +357,7 @@ test.describe('Cart test cases', () => {
             })
             .click();
         });
-    });
+      });
     });
   });
 });
