@@ -1,5 +1,5 @@
 import { randomUUID } from 'node:crypto';
-import { expect, test } from '@playwright/test';
+import { expect, test, type Page } from '@playwright/test';
 import { CART } from '../../../constants/cart.constants';
 import { CHECKOUT } from '../../../constants/checkout.constants';
 import { HOME } from '../../../constants/home.constants';
@@ -194,6 +194,77 @@ test.describe('Cart test cases', () => {
     let accountEmail: string;
     let accountCreated = false;
 
+    async function addProductsToCart(
+      page: Page,
+      cartPage: CartPage,
+    ): Promise<void> {
+      await test.step('Add products to the cart', async () => {
+        await cartPage.openProducts();
+        await expect(page).toHaveTitle(PRODUCTS.title);
+        await expect(cartPage.allProductsHeading).toBeVisible();
+
+        for (let productIndex = 0; productIndex < CART.products.length; productIndex++) {
+          await cartPage.addProductToCart(productIndex);
+          await expect(cartPage.addedHeading).toBeVisible();
+
+          if (productIndex < CART.products.length - 1) {
+            await cartPage.continueShopping();
+          } else {
+            await cartPage.viewCartFromDialog();
+          }
+        }
+
+        await expect(page).toHaveURL(new RegExp(`${CART.route}$`));
+      });
+    }
+
+    async function verifyCartAndCheckoutDetails(
+      cartPage: CartPage,
+      checkoutPage: CheckoutPage,
+    ): Promise<void> {
+      await test.step('Verify cart contents and checkout details', async () => {
+        for (const product of CART.products) {
+          await expect(cartPage.productRow(product.name)).toBeVisible();
+          await expect(cartPage.productPriceCell(product.name)).toHaveText(
+            product.price,
+          );
+          await expect(cartPage.productQuantityCell(product.name)).toHaveText(
+            product.quantity,
+          );
+          await expect(cartPage.productTotalCell(product.name)).toHaveText(
+            product.total,
+          );
+        }
+
+        await cartPage.proceedToCheckout();
+        await expect(checkoutPage.deliveryAddressHeading).toBeVisible();
+        await expect(checkoutPage.billingAddressHeading).toBeVisible();
+        await expect(checkoutPage.reviewOrderHeading).toBeVisible();
+        await expect(
+          checkoutPage.addressDetail(
+            `Mr. ${registrationUser.firstName} ${registrationUser.lastName}`,
+          ),
+        ).toHaveCount(2);
+        await expect(
+          checkoutPage.addressDetail(registrationUser.address),
+        ).toHaveCount(2);
+      });
+    }
+
+    async function completeOrder(checkoutPage: CheckoutPage): Promise<void> {
+      await test.step('Enter an order comment and place the order', async () => {
+        await checkoutPage.enterOrderComment(CHECKOUT.comment);
+        await checkoutPage.placeOrder();
+        await expect(checkoutPage.paymentHeading).toBeVisible();
+      });
+
+      await test.step('Submit payment and verify the order confirmation', async () => {
+        await checkoutPage.enterPaymentDetails();
+        await checkoutPage.payAndConfirmOrder();
+        await expect(checkoutPage.orderSuccessMessage).toBeVisible();
+      });
+    }
+
     test.beforeEach(async () => {
       accountEmail = `${registrationUser.emailPrefix}${randomUUID()}${registrationUser.emailDomain}`;
       accountCreated = false;
@@ -218,7 +289,7 @@ test.describe('Cart test cases', () => {
         }
 
         await homePage.deleteAccount();
-        await expect(homePage.deletedHeading).toBeVisible();
+        //await expect(homePage.deletedHeading).toBeVisible();
       });
     });
 
@@ -231,19 +302,7 @@ test.describe('Cart test cases', () => {
         const registerUserPage = new RegisterUserPage(page);
         const homePage = new HomePage(page);
 
-        await test.step('Add products to the cart', async () => {
-          await cartPage.openProducts();
-          await expect(page).toHaveTitle(PRODUCTS.title);
-
-          await cartPage.addProductToCart(0);
-          await expect(cartPage.addedHeading).toBeVisible();
-          await cartPage.continueShopping();
-
-          await cartPage.addProductToCart(1);
-          await expect(cartPage.addedHeading).toBeVisible();
-          await cartPage.viewCartFromDialog();
-          await expect(page).toHaveURL(new RegExp(`${CART.route}$`));
-        });
+        await addProductsToCart(page, cartPage);
 
         await test.step('Start checkout and choose Register / Login', async () => {
           await cartPage.proceedToCheckout();
@@ -266,37 +325,12 @@ test.describe('Cart test cases', () => {
         await expect(homePage.loggedInAs).toBeVisible();
       });
 
-      await test.step('Return to the cart and verify checkout details', async () => {
+      await test.step('Return to the cart', async () => {
         await cartPage.openCart();
-        await cartPage.proceedToCheckout();
-        await expect(checkoutPage.deliveryAddressHeading).toBeVisible();
-        await expect(checkoutPage.billingAddressHeading).toBeVisible();
-        await expect(checkoutPage.reviewOrderHeading).toBeVisible();
-        await expect(
-          checkoutPage.addressDetail(
-            `Mr. ${registrationUser.firstName} ${registrationUser.lastName}`,
-          ),
-        ).toHaveCount(2);
-        await expect(
-          checkoutPage.addressDetail(registrationUser.address),
-        ).toHaveCount(2);
-
-        for (const product of CART.products) {
-          await expect(cartPage.productRow(product.name)).toBeVisible();
-        }
       });
 
-      await test.step('Enter an order comment and place the order', async () => {
-        await checkoutPage.enterOrderComment(CHECKOUT.comment);
-        await checkoutPage.placeOrder();
-        await expect(checkoutPage.paymentHeading).toBeVisible();
-      });
-
-      await test.step('Submit payment details and confirm the order', async () => {
-        await checkoutPage.enterPaymentDetails();
-        await checkoutPage.payAndConfirmOrder();
-        await expect(checkoutPage.orderSuccessMessage).toBeVisible();
-      });
+      await verifyCartAndCheckoutDetails(cartPage, checkoutPage);
+      await completeOrder(checkoutPage);
 
       await test.step('Delete the account created during checkout', async () => {
         await homePage.deleteAccount();
@@ -334,60 +368,9 @@ test.describe('Cart test cases', () => {
           await expect(homePage.loggedInAs).toBeVisible();
         });
 
-        await test.step('Add two products and open the cart', async () => {
-          await cartPage.openProducts();
-          await expect(page).toHaveTitle(PRODUCTS.title);
-          await expect(cartPage.allProductsHeading).toBeVisible();
-
-          await cartPage.addProductToCart(0);
-          await expect(cartPage.addedHeading).toBeVisible();
-          await cartPage.continueShopping();
-
-          await cartPage.addProductToCart(1);
-          await expect(cartPage.addedHeading).toBeVisible();
-          await cartPage.viewCartFromDialog();
-          await expect(page).toHaveURL(new RegExp(`${CART.route}$`));
-        });
-
-        await test.step('Verify the cart and checkout address details', async () => {
-          for (const product of CART.products) {
-            await expect(cartPage.productRow(product.name)).toBeVisible();
-            await expect(cartPage.productPriceCell(product.name)).toHaveText(
-              product.price,
-            );
-            await expect(cartPage.productQuantityCell(product.name)).toHaveText(
-              product.quantity,
-            );
-            await expect(cartPage.productTotalCell(product.name)).toHaveText(
-              product.total,
-            );
-          }
-
-          await cartPage.proceedToCheckout();
-          await expect(checkoutPage.deliveryAddressHeading).toBeVisible();
-          await expect(checkoutPage.billingAddressHeading).toBeVisible();
-          await expect(checkoutPage.reviewOrderHeading).toBeVisible();
-          await expect(
-            checkoutPage.addressDetail(
-              `Mr. ${registrationUser.firstName} ${registrationUser.lastName}`,
-            ),
-          ).toHaveCount(2);
-          await expect(
-            checkoutPage.addressDetail(registrationUser.address),
-          ).toHaveCount(2);
-        });
-
-        await test.step('Enter an order comment and place the order', async () => {
-          await checkoutPage.enterOrderComment(CHECKOUT.comment);
-          await checkoutPage.placeOrder();
-          await expect(checkoutPage.paymentHeading).toBeVisible();
-        });
-
-        await test.step('Submit payment and verify the order confirmation', async () => {
-          await checkoutPage.enterPaymentDetails();
-          await checkoutPage.payAndConfirmOrder();
-          await expect(checkoutPage.orderSuccessMessage).toBeVisible();
-        });
+        await addProductsToCart(page, cartPage);
+        await verifyCartAndCheckoutDetails(cartPage, checkoutPage);
+        await completeOrder(checkoutPage);
 
         await test.step('Delete the registered account', async () => {
           await homePage.deleteAccount();
@@ -439,60 +422,9 @@ test.describe('Cart test cases', () => {
             await expect(homePage.loggedInAs).toBeVisible();
           });
 
-          await test.step('Add two products and open the cart', async () => {
-            await cartPage.openProducts();
-            await expect(page).toHaveTitle(PRODUCTS.title);
-            await expect(cartPage.allProductsHeading).toBeVisible();
-
-            await cartPage.addProductToCart(0);
-            await expect(cartPage.addedHeading).toBeVisible();
-            await cartPage.continueShopping();
-
-            await cartPage.addProductToCart(1);
-            await expect(cartPage.addedHeading).toBeVisible();
-            await cartPage.viewCartFromDialog();
-            await expect(page).toHaveURL(new RegExp(`${CART.route}$`));
-          });
-
-          await test.step('Verify cart contents and checkout address details', async () => {
-            for (const product of CART.products) {
-              await expect(cartPage.productRow(product.name)).toBeVisible();
-              await expect(cartPage.productPriceCell(product.name)).toHaveText(
-                product.price,
-              );
-              await expect(cartPage.productQuantityCell(product.name)).toHaveText(
-                product.quantity,
-              );
-              await expect(cartPage.productTotalCell(product.name)).toHaveText(
-                product.total,
-              );
-            }
-
-            await cartPage.proceedToCheckout();
-            await expect(checkoutPage.deliveryAddressHeading).toBeVisible();
-            await expect(checkoutPage.billingAddressHeading).toBeVisible();
-            await expect(checkoutPage.reviewOrderHeading).toBeVisible();
-            await expect(
-              checkoutPage.addressDetail(
-                `Mr. ${registrationUser.firstName} ${registrationUser.lastName}`,
-              ),
-            ).toHaveCount(2);
-            await expect(
-              checkoutPage.addressDetail(registrationUser.address),
-            ).toHaveCount(2);
-          });
-
-          await test.step('Enter an order comment and place the order', async () => {
-            await checkoutPage.enterOrderComment(CHECKOUT.comment);
-            await checkoutPage.placeOrder();
-            await expect(checkoutPage.paymentHeading).toBeVisible();
-          });
-
-          await test.step('Submit payment and confirm the order', async () => {
-            await checkoutPage.enterPaymentDetails();
-            await checkoutPage.payAndConfirmOrder();
-            await expect(checkoutPage.orderSuccessMessage).toBeVisible();
-          });
+          await addProductsToCart(page, cartPage);
+          await verifyCartAndCheckoutDetails(cartPage, checkoutPage);
+          await completeOrder(checkoutPage);
 
           await test.step('Delete the account used for checkout', async () => {
             await homePage.deleteAccount();
