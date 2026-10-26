@@ -2,7 +2,6 @@ import { expect, test } from '@playwright/test';
 import { HOME } from '../../../constants/home.constants';
 import { SUBSCRIPTION } from '../../../constants/subscription.constants';
 import { HomePage } from '../../../pages/home.page';
-import { SubscriptionPage } from '../../../pages/subscription.page';
 
 test.describe('Test Case 10: Verify Subscription in home page', () => {
   test.beforeEach(async ({ page }) => {
@@ -28,20 +27,20 @@ test.describe('Test Case 10: Verify Subscription in home page', () => {
   test('subscribes an email address from the home page footer', async ({
     page,
   }) => {
-    const subscriptionPage = new SubscriptionPage(page);
+    const homePage = new HomePage(page);
     const email = `${SUBSCRIPTION.emailPrefix}-${Date.now()}@${SUBSCRIPTION.emailDomain}`;
 
     await test.step('Scroll to the footer and verify Subscription', async () => {
-      await subscriptionPage.scrollToSubscription();
-      await expect(subscriptionPage.heading).toBeVisible();
+      await homePage.scrollToSubscription();
+      await expect(homePage.subscriptionHeading).toBeVisible();
     });
 
     await test.step('Submit an email address for the subscription', async () => {
-      await subscriptionPage.subscribe(email);
+      await homePage.subscribe(email);
     });
 
     await test.step('Verify the subscription confirmation message', async () => {
-      await expect(subscriptionPage.successMessage).toHaveText(
+      await expect(homePage.subscriptionSuccessMessage).toHaveText(
         SUBSCRIPTION.successMessage,
       );
     });

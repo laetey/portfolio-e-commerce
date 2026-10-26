@@ -7,6 +7,7 @@ export const HOME = {
   },
   nav: {
     productsLink: 'Products',
+    cartLink: 'Cart',
     loginLink: 'Signup / Login',
     logoutLink: 'Logout',
     homeLink: 'Home',
