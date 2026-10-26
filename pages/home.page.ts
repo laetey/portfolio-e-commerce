@@ -24,6 +24,12 @@ export class HomePage extends BasePage {
       .click();
   }
 
+  async openTestCases(): Promise<void> {
+    await this.page
+      .getByRole('link', { name: HOME.nav.testCasesLink, exact: true })
+      .click();
+  }
+
   async logout(): Promise<void> {
     await this.page
       .getByRole('link', { name: HOME.nav.logoutLink })

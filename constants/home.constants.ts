@@ -11,6 +11,7 @@ export const HOME = {
     logoutLink: 'Logout',
     homeLink: 'Home',
     contactUsLink: 'Contact us',
+    testCasesLink: 'Test Cases',
   },
   product: {
     listHeading: 'All Products',
