@@ -9,13 +9,19 @@ export default defineConfig({
   reporter: [['list'], ['html', { open: 'never' }]],
   use: {
     baseURL: 'https://automationexercise.com',
+    testIdAttribute: 'data-qa',
     trace: 'retain-on-failure',
+    video : 'retain-on-failure',
     screenshot: 'only-on-failure',
   },
   projects: [
     {
       name: 'chromium',
       use: { ...devices['Desktop Chrome'] },
-    },
+    }, 
+    {
+      name: 'edge',
+      use: { ...devices['Desktop Edge'] },
+    }
   ],
 });
