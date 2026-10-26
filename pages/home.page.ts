@@ -18,6 +18,12 @@ export class HomePage extends BasePage {
       .click();
   }
 
+  async openContactUs(): Promise<void> {
+    await this.page
+      .getByRole('link', { name: HOME.nav.contactUsLink })
+      .click();
+  }
+
   async logout(): Promise<void> {
     await this.page
       .getByRole('link', { name: HOME.nav.logoutLink })

@@ -10,6 +10,7 @@ export const HOME = {
     loginLink: 'Signup / Login',
     logoutLink: 'Logout',
     homeLink: 'Home',
+    contactUsLink: 'Contact us',
   },
   product: {
     listHeading: 'All Products',
