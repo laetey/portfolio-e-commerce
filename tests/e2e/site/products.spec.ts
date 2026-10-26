@@ -54,3 +54,44 @@ test.describe('Test Case 8: Verify All Products and product detail page', () => 
     });
   });
 });
+
+test.describe('Test Case 9: Search Product', () => {
+  test.beforeEach(async ({ page }) => {
+    const homePage = new HomePage(page);
+
+    await test.step('Open the home page before the scenario', async () => {
+      await homePage.gotoHome();
+      await homePage.dismissConsentIfVisible();
+      await expect(page).toHaveTitle(HOME.titlePattern);
+    });
+  });
+
+  test.afterEach(async ({ page }) => {
+    const homePage = new HomePage(page);
+
+    await test.step('Return to the home page after the scenario', async () => {
+      await homePage.gotoHome();
+      await homePage.dismissConsentIfVisible();
+      await expect(page).toHaveTitle(HOME.titlePattern);
+    });
+  });
+
+  test('shows products matching the search term', async ({ page }) => {
+    const productsPage = new ProductsPage(page);
+
+    await test.step('Open Products and verify the product catalog', async () => {
+      await productsPage.gotoProducts();
+      await expect(page).toHaveTitle(PRODUCTS.title);
+      await expect(productsPage.allProductsHeading).toBeVisible();
+    });
+
+    await test.step('Search for a product by name', async () => {
+      await productsPage.searchForProduct(PRODUCTS.search.productName);
+      await expect(productsPage.searchedProductsHeading).toBeVisible();
+    });
+
+    await test.step('Verify the matching product is displayed', async () => {
+      await expect(productsPage.searchedProductName).toBeVisible();
+    });
+  });
+});

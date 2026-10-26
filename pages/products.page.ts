@@ -29,6 +29,34 @@ export class ProductsPage extends BasePage {
     });
   }
 
+  get searchInput(): Locator {
+    return this.page.getByRole('textbox', {
+      name: PRODUCTS.search.inputLabel,
+      exact: true,
+    });
+  }
+
+  get searchButton(): Locator {
+    return this.page.getByRole('button', {
+      name: PRODUCTS.search.buttonAccessibleName,
+      exact: true,
+    });
+  }
+
+  get searchedProductsHeading(): Locator {
+    return this.page.getByRole('heading', {
+      name: PRODUCTS.search.heading,
+      exact: true,
+    });
+  }
+
+  get searchedProductName(): Locator {
+    return this.page
+      .getByRole('paragraph')
+      .filter({ hasText: PRODUCTS.search.productName })
+      .first();
+  }
+
   get firstProductCategory(): Locator {
     return this.page
       .getByRole('paragraph')
@@ -60,5 +88,10 @@ export class ProductsPage extends BasePage {
 
   async openFirstProduct(): Promise<void> {
     await this.firstViewProductLink.click();
+  }
+
+  async searchForProduct(productName: string): Promise<void> {
+    await this.searchInput.fill(productName);
+    await this.searchButton.click();
   }
 }
