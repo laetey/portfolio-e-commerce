@@ -36,6 +36,47 @@ export class ProductsPage extends BasePage {
     });
   }
 
+  get reviewLink(): Locator {
+    return this.page.getByRole('link', {
+      name: PRODUCTS.review.heading,
+      exact: true,
+    });
+  }
+
+  get reviewNameInput(): Locator {
+    return this.page.getByRole('textbox', {
+      name: PRODUCTS.review.namePlaceholder,
+      exact: true,
+    });
+  }
+
+  get reviewEmailInput(): Locator {
+    return this.page.getByRole('textbox', {
+      name: PRODUCTS.review.emailPlaceholder,
+      exact: true,
+    });
+  }
+
+  get reviewTextInput(): Locator {
+    return this.page.getByRole('textbox', {
+      name: PRODUCTS.review.textPlaceholder,
+      exact: true,
+    });
+  }
+
+  get reviewSubmitButton(): Locator {
+    return this.page.getByRole('button', {
+      name: PRODUCTS.review.submitButton,
+      exact: true,
+    });
+  }
+
+  get reviewSuccessMessage(): Locator {
+    return this.page.getByText(PRODUCTS.review.successMessage, {
+      exact: true,
+    });
+  }
+
   get searchInput(): Locator {
     return this.page.getByRole('textbox', {
       name: PRODUCTS.search.inputLabel,
@@ -114,6 +155,13 @@ export class ProductsPage extends BasePage {
 
   async openFirstProduct(): Promise<void> {
     await this.firstViewProductLink.click();
+  }
+
+  async submitReview(name: string, email: string, review: string): Promise<void> {
+    await this.reviewNameInput.fill(name);
+    await this.reviewEmailInput.fill(email);
+    await this.reviewTextInput.fill(review);
+    await this.reviewSubmitButton.click();
   }
 
   async searchForProduct(productName: string): Promise<void> {

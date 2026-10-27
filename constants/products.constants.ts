@@ -16,6 +16,18 @@ export const PRODUCTS = {
     heading: 'Searched Products',
     productName: 'Blue Top',
   },
+  review: {
+    heading: 'Write Your Review',
+    namePlaceholder: 'Your Name',
+    emailPlaceholder: 'Email Address',
+    textPlaceholder: 'Add Review Here!',
+    submitButton: 'Submit',
+    successMessage: 'Thank you for your review.',
+    reviewerName: 'Playwright Reviewer',
+    emailPrefix: 'playwright-review-',
+    emailDomain: '@example.com',
+    text: 'This product review was submitted by an automated test.',
+  },
   firstProduct: {
     name: 'Blue Top',
     category: 'Category: Women > Tops',

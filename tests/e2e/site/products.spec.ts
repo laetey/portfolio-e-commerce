@@ -256,3 +256,55 @@ test.describe('Test Case 20: Search Products and Verify Cart After Login', () =>
     });
   });
 });
+
+test.describe('Test Case 21: Add review on product', () => {
+  test.beforeEach(async ({ page }) => {
+    const homePage = new HomePage(page);
+
+    await test.step('Open the home page and verify it is visible', async () => {
+      await homePage.gotoHome();
+      await homePage.dismissConsentIfVisible();
+      await expect(page).toHaveTitle(HOME.titlePattern);
+    });
+  });
+
+  test.afterEach(async ({ page }) => {
+    const homePage = new HomePage(page);
+
+    await test.step('Return to the home page after the scenario', async () => {
+      await homePage.gotoHome();
+      await homePage.dismissConsentIfVisible();
+      await expect(page).toHaveTitle(HOME.titlePattern);
+    });
+  });
+
+  test('submits a review for the first product', async ({ page }) => {
+    const productsPage = new ProductsPage(page);
+    const reviewerEmail = `${PRODUCTS.review.emailPrefix}${randomUUID()}${PRODUCTS.review.emailDomain}`;
+
+    await test.step('Open Products and verify the product catalog', async () => {
+      await productsPage.gotoProducts();
+      await expect(page).toHaveTitle(PRODUCTS.title);
+      await expect(productsPage.allProductsHeading).toBeVisible();
+    });
+
+    await test.step('Open the first product and verify the review form', async () => {
+      await productsPage.openFirstProduct();
+      await expect(page).toHaveTitle(PRODUCTS.productDetailsTitle);
+      await expect(productsPage.firstProductHeading).toBeVisible();
+      await expect(productsPage.reviewLink).toBeVisible();
+    });
+
+    await test.step('Submit a product review', async () => {
+      await productsPage.submitReview(
+        PRODUCTS.review.reviewerName,
+        reviewerEmail,
+        PRODUCTS.review.text,
+      );
+    });
+
+    await test.step('Verify the review submission confirmation', async () => {
+      await expect(productsPage.reviewSuccessMessage).toBeVisible();
+    });
+  });
+});
