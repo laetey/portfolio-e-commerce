@@ -64,6 +64,10 @@ export class ProductsPage extends BasePage {
       .first();
   }
 
+  get searchedProductCards(): Locator {
+    return this.page.locator('.features_items .product-image-wrapper');
+  }
+
   get firstProductCategory(): Locator {
     return this.page
       .getByRole('paragraph')
