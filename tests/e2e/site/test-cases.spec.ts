@@ -33,6 +33,11 @@ test.describe('Test Case 7: Verify Test Cases Page', () => {
       await homePage.openTestCases();
       await expect(page).toHaveTitle(TEST_CASES_PAGE.title);
       await expect(testCasesPage.heading).toBeVisible();
+      await expect(testCasesPage.scenarioLinks).toHaveCount(
+        TEST_CASES_PAGE.scenarioCount,
+      );
+      await expect(testCasesPage.firstScenarioLink).toBeVisible();
+      await expect(testCasesPage.lastScenarioLink).toBeVisible();
     });
   });
 });

@@ -124,10 +124,11 @@ test.describe('Product API scenarios', () => {
     });
 
     test('returns products matching the search term', async () => {
+      const searchTerm = 'jean';
       let responseBody: ProductListResponse;
 
-      await test.step('Search products for top', async () => {
-        const response = await productsService.searchProducts('top');
+      await test.step(`Search products for ${searchTerm}`, async () => {
+        const response = await productsService.searchProducts(searchTerm);
         expect(response.status()).toBe(200);
         responseBody = await response.json() as ProductListResponse;
       });
@@ -135,7 +136,9 @@ test.describe('Product API scenarios', () => {
       await test.step('Verify matching product results are returned', async () => {
         expect(responseBody.responseCode).toBe(200);
         expect(responseBody.products.length).toBeGreaterThan(0);
-        expect(responseBody.products.some(({ name }) => /top/i.test(name))).toBe(true);
+        expect(responseBody.products.every(({ name }) =>
+          name.toLowerCase().includes(searchTerm.toLowerCase()),
+        )).toBe(true);
       });
     });
   });

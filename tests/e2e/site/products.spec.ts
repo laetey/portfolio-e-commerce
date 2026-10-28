@@ -1,6 +1,7 @@
 import { randomUUID } from 'node:crypto';
 import { expect, test } from '@playwright/test';
 import { CART } from '../../../constants/cart.constants';
+import { CATEGORY_PRODUCTS } from '../../../constants/category-products.constants';
 import { HOME } from '../../../constants/home.constants';
 import { PRODUCTS } from '../../../constants/products.constants';
 import { CartPage } from '../../../pages/cart.page';
@@ -147,6 +148,49 @@ test.describe('Test Case 19: View & Cart Brand Products', () => {
         await expect(productsPage.firstViewProductLink).toBeVisible();
       });
     }
+  });
+});
+
+test.describe('Test Case 18: View Category Products', () => {
+  test.beforeEach(async ({ page }) => {
+    const homePage = new HomePage(page);
+
+    await test.step('Open the home page and verify it is visible', async () => {
+      await homePage.gotoHome();
+      await homePage.dismissConsentIfVisible();
+      await expect(page).toHaveTitle(HOME.titlePattern);
+    });
+  });
+
+  test.afterEach(async ({ page }) => {
+    const homePage = new HomePage(page);
+
+    await test.step('Return to the home page after the scenario', async () => {
+      await homePage.gotoHome();
+      await homePage.dismissConsentIfVisible();
+      await expect(page).toHaveTitle(HOME.titlePattern);
+    });
+  });
+
+  test('navigates through Women and Men product categories', async ({ page }) => {
+    const productsPage = new ProductsPage(page);
+    const { women, men } = CATEGORY_PRODUCTS.categories;
+
+    await test.step('Verify categories are displayed in the sidebar', async () => {
+      await expect(productsPage.categoriesHeading).toBeVisible();
+    });
+
+    await test.step(`Open ${women.name} > ${women.subcategory}`, async () => {
+      await productsPage.openCategory(women.name);
+      await productsPage.openSubcategory(women.name, women.subcategory);
+      await expect(productsPage.categoryProductsHeading).toHaveText(women.heading);
+    });
+
+    await test.step(`Open ${men.name} > ${men.subcategory}`, async () => {
+      await productsPage.openCategory(men.name);
+      await productsPage.openSubcategory(men.name, men.subcategory);
+      await expect(productsPage.categoryProductsHeading).toHaveText(men.heading);
+    });
   });
 });
 

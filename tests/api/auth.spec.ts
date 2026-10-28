@@ -150,6 +150,14 @@ test.describe('Authentication and account APIs', () => {
           message: API_MESSAGES.userUpdated,
         });
       });
+
+      await test.step('Verify the updated name is persisted', async () => {
+        const response = await authService.getAccountDetails(testAccount.email);
+        expect(response.status()).toBe(200);
+        const responseBody = await response.json() as UserDetailsResponse;
+        expect(responseBody.responseCode).toBe(200);
+        expect(responseBody.user.name).toBe(testAccount.name);
+      });
     });
   });
 

@@ -289,7 +289,8 @@ test.describe('Cart test cases', () => {
         }
 
         await homePage.deleteAccount();
-        //await expect(homePage.deletedHeading).toBeVisible();
+        await expect(homePage.deletedHeading).toBeVisible();
+        accountCreated = false;
       });
     });
 

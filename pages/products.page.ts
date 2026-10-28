@@ -1,4 +1,5 @@
 import type { Locator, Page } from '@playwright/test';
+import { CATEGORY_PRODUCTS } from '../constants/category-products.constants';
 import { PRODUCTS } from '../constants/products.constants';
 import { BasePage } from './base.page';
 
@@ -19,6 +20,17 @@ export class ProductsPage extends BasePage {
       name: PRODUCTS.brandsHeading,
       exact: true,
     });
+  }
+
+  get categoriesHeading(): Locator {
+    return this.page.getByRole('heading', {
+      name: CATEGORY_PRODUCTS.sidebarHeading,
+      exact: true,
+    });
+  }
+
+  get categoryProductsHeading(): Locator {
+    return this.page.locator('.features_items h2.title');
   }
 
   get firstViewProductLink(): Locator {
@@ -171,5 +183,21 @@ export class ProductsPage extends BasePage {
 
   async openBrand(brandName: string): Promise<void> {
     await this.brandLink(brandName).click();
+  }
+
+  async openCategory(categoryName: string): Promise<void> {
+    await this.page
+      .locator(`#accordian a[href="#${categoryName}"]`)
+      .click({ noWaitAfter: true });
+  }
+
+  async openSubcategory(
+    categoryName: string,
+    subcategoryName: string,
+  ): Promise<void> {
+    await this.page
+      .locator(`#${categoryName}`)
+      .getByRole('link', { name: subcategoryName, exact: true })
+      .click();
   }
 }

@@ -22,10 +22,6 @@ export default defineConfig({
       retries: 1,
     },
     {
-      name: 'e2e',
-      testMatch: '**/e2e/**/*.spec.ts',
-    },
-    {
       name: 'chromium',
       testMatch: '**/e2e/**/*.spec.ts',
       use: { ...devices['Desktop Chrome'] },
