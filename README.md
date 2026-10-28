@@ -28,6 +28,9 @@ npm run test:ui
 
 # Afficher le dernier rapport HTML
 npm run test:report
+
+# Lancer les tests API
+npx playwright test --project=api
 ```
 
 Les tests sont organisés sous `tests/e2e/` par domaine (`account`, `login` et `site`). Les objets de page sont dans `pages/`, les sélecteurs et textes dans `constants/`, et les données de compte de test dans `test-data/`.
@@ -36,4 +39,4 @@ La suite couvre le chargement de la page Test Cases, la présence des 26 scénar
 
 Le Test Case 2 crée un compte jetable avec le parcours d'inscription dans son `beforeEach`, le déconnecte avant le scénario de connexion, puis le supprime dans son `afterEach`. L'adresse email est unique à chaque exécution.
 
-Le périmètre actuel ne contient pas de tests API ni de scénarios catalog/cart/checkout ; leurs dossiers et clients API seront ajoutés avec ces suites plutôt que sous forme d'emplacements vides.
+Les 14 scénarios API publiés sont testés dans `tests/api/` : liste et recherche de produits, liste des marques, méthodes non prises en charge, vérification de connexion et cycle de vie des comptes. Les clients, services et modèles partagés sont dans `api/`. Les tests de compte créent des adresses uniques et suppriment les comptes temporaires après chaque scénario.
