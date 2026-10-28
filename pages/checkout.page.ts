@@ -73,6 +73,20 @@ export class CheckoutPage extends BasePage {
     return this.page.getByText(CHECKOUT.orderSuccessMessage, { exact: true });
   }
 
+  get invoiceDownloadLink(): Locator {
+    return this.page.getByRole('link', {
+      name: CHECKOUT.invoiceDownloadLinkName,
+      exact: true,
+    });
+  }
+
+  get continueAfterOrderLink(): Locator {
+    return this.page.getByRole('link', {
+      name: CHECKOUT.continueAfterOrderLinkName,
+      exact: true,
+    });
+  }
+
   addressDetail(value: string): Locator {
     return this.page.getByText(value, { exact: true });
   }
@@ -95,5 +109,13 @@ export class CheckoutPage extends BasePage {
 
   async payAndConfirmOrder(): Promise<void> {
     await this.payAndConfirmButton.click();
+  }
+
+  async downloadInvoice(): Promise<void> {
+    await this.invoiceDownloadLink.click();
+  }
+
+  async continueAfterOrder(): Promise<void> {
+    await this.continueAfterOrderLink.click();
   }
 }

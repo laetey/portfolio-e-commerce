@@ -8,6 +8,8 @@ export const CHECKOUT = {
   paymentHeading: 'Payment',
   paymentButton: 'Pay and Confirm Order',
   orderSuccessMessage: 'Congratulations! Your order has been confirmed!',
+  invoiceDownloadLinkName: 'Download Invoice',
+  continueAfterOrderLinkName: 'Continue',
   comment: 'Please deliver this order as soon as possible.',
   payment: {
     nameOnCardTestId: 'name-on-card',

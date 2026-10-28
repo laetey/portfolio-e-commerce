@@ -510,5 +510,76 @@ test.describe('Cart test cases', () => {
         });
       });
     });
+
+    test.describe('Test Case 24: Download Invoice after purchase order', () => {
+        test.setTimeout(90_000);
+
+        test.beforeEach(async ({ page }) => {
+          await page.route('https://googleads.g.doubleclick.net/**', (route) =>
+            route.abort(),
+          );
+        });
+
+        test('downloads the invoice after completing an order', async ({
+          page,
+        }) => {
+          const cartPage = new CartPage(page);
+          const checkoutPage = new CheckoutPage(page);
+          const homePage = new HomePage(page);
+          const registerUserPage = new RegisterUserPage(page);
+
+          await addProductsToCart(page, cartPage);
+
+          await test.step('Start checkout and open the registration form', async () => {
+            await expect(page).toHaveURL(new RegExp(`${CART.route}$`));
+            await cartPage.proceedToCheckout();
+            await expect(cartPage.registerLoginLink).toBeVisible();
+            await cartPage.registerLoginFromCheckout();
+            await expect(page).toHaveURL(/\/login$/);
+            await expect(registerUserPage.signupHeading).toBeVisible();
+          });
+
+          await test.step('Create an account and verify the logged-in user', async () => {
+            await registerUserPage.startRegistration(
+              registrationUser.name,
+              accountEmail,
+            );
+            await expect(registerUserPage.accountHeading).toBeVisible();
+            await registerUserPage.completeRegistration(registrationUser);
+            await expect(registerUserPage.accountCreatedHeading).toBeVisible();
+            accountCreated = true;
+            await registerUserPage.continueAfterAccountCreation();
+            await expect(homePage.loggedInAs).toBeVisible();
+          });
+
+          await test.step('Return to the cart and verify checkout details', async () => {
+            await cartPage.openCart();
+            await expect(page).toHaveURL(new RegExp(`${CART.route}$`));
+            await verifyCartAndCheckoutDetails(cartPage, checkoutPage);
+          });
+
+          await completeOrder(checkoutPage);
+
+          await test.step('Download and verify the invoice', async () => {
+            const downloadPromise = page.waitForEvent('download');
+            await checkoutPage.downloadInvoice();
+            const invoiceDownload = await downloadPromise;
+
+            expect(invoiceDownload.suggestedFilename()).toMatch(/invoice/i);
+            expect(await invoiceDownload.failure()).toBeNull();
+            expect(await invoiceDownload.path()).not.toBeNull();
+          });
+
+          await test.step('Continue and delete the test account', async () => {
+            await checkoutPage.continueAfterOrder();
+            await expect(homePage.loggedInAs).toBeVisible();
+            await homePage.deleteAccount();
+            await expect(homePage.deletedHeading).toBeVisible();
+            accountCreated = false;
+            await registerUserPage.continueAfterAccountDeletion();
+            await expect(page).toHaveTitle(HOME.titlePattern);
+        });
+      });
+    });
   });
 });
