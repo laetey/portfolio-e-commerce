@@ -362,3 +362,46 @@ test.describe('Test Case 22: Add to cart from Recommended items', () => {
     });
   });
 });
+
+test.describe("Test Case 25: Verify Scroll Up using 'Arrow' button and Scroll Down functionality", () => {
+  test.beforeEach(async ({ page }) => {
+    const homePage = new HomePage(page);
+
+    await page.route('https://googleads.g.doubleclick.net/**', (route) =>
+      route.abort(),
+    );
+
+    await test.step('Open the home page and verify it is visible', async () => {
+      await homePage.gotoHome();
+      await homePage.dismissConsentIfVisible();
+      await expect(page).toHaveTitle(HOME.titlePattern);
+    });
+  });
+
+  test.afterEach(async ({ page }) => {
+    const homePage = new HomePage(page);
+
+    await test.step('Return to the home page after the scenario', async () => {
+      await homePage.gotoHome();
+      await homePage.dismissConsentIfVisible();
+      await expect(page).toHaveTitle(HOME.titlePattern);
+    });
+  });
+
+  test('scrolls to the footer and back to the top with the arrow', async ({
+    page,
+  }) => {
+    const homePage = new HomePage(page);
+
+    await test.step('Scroll to the bottom and verify Subscription', async () => {
+      await homePage.scrollToBottom();
+      await expect(homePage.subscriptionHeading).toBeVisible();
+    });
+
+    await test.step('Use the arrow to scroll back to the top', async () => {
+      await expect(homePage.scrollUpArrow).toBeVisible();
+      await homePage.scrollToTopWithArrow();
+      await expect(homePage.tagline).toBeInViewport();
+    });
+  });
+});

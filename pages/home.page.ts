@@ -41,6 +41,27 @@ export class HomePage extends BasePage {
       .click();
   }
 
+  get tagline(): Locator {
+    return this.page.getByRole('heading', {
+      name: HOME.tagline,
+      exact: true,
+    });
+  }
+
+  get scrollUpArrow(): Locator {
+    return this.page.locator('#scrollUp');
+  }
+
+  async scrollToBottom(): Promise<void> {
+    await this.page.evaluate(() =>
+      window.scrollTo(0, document.body.scrollHeight),
+    );
+  }
+
+  async scrollToTopWithArrow(): Promise<void> {
+    await this.scrollUpArrow.click();
+  }
+
   get recommendedItemsHeading(): Locator {
     return this.page.getByRole('heading', {
       name: PRODUCTS.recommendedItems.heading,
