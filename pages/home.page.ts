@@ -58,6 +58,10 @@ export class HomePage extends BasePage {
     );
   }
 
+  async scrollToTopWithoutArrow(): Promise<void> {
+    await this.page.evaluate(() => window.scrollTo(0, 0));
+  }
+
   async scrollToTopWithArrow(): Promise<void> {
     await this.scrollUpArrow.click();
   }

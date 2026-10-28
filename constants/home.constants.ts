@@ -2,6 +2,7 @@ export const HOME = {
   route: '/',
   titlePattern: /Automation Exercise/,
   consentButtonName: 'Consent',
+  tagline: 'Full-Fledged practice website for Automation Engineers',
   data: {
     productName: 'Sweatshirt',
   },
