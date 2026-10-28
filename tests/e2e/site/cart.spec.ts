@@ -438,6 +438,77 @@ test.describe('Cart test cases', () => {
               .click();
         });
       });
+      });
+
+    test.describe('Test Case 23: Verify address details in checkout page', () => {
+      test.setTimeout(60_000);
+
+      test.beforeEach(async ({ page }) => {
+        await page.route('https://googleads.g.doubleclick.net/**', (route) =>
+          route.abort(),
+        );
+      });
+
+      test('matches the registered address in delivery and billing details', async ({
+        page,
+      }) => {
+        const cartPage = new CartPage(page);
+        const checkoutPage = new CheckoutPage(page);
+        const homePage = new HomePage(page);
+        const registerUserPage = new RegisterUserPage(page);
+        const addressValues = [
+          `Mr. ${registrationUser.firstName} ${registrationUser.lastName}`,
+          registrationUser.company,
+          registrationUser.address,
+          registrationUser.address2,
+          `${registrationUser.city} ${registrationUser.state} ${registrationUser.zipcode}`,
+          registrationUser.country,
+          registrationUser.mobileNumber,
+        ];
+
+        await test.step('Register a new account with test address details', async () => {
+          await homePage.openLogin();
+          await expect(registerUserPage.signupHeading).toBeVisible();
+          await registerUserPage.startRegistration(
+            registrationUser.name,
+            accountEmail,
+          );
+          await expect(registerUserPage.accountHeading).toBeVisible();
+          await registerUserPage.completeRegistration(registrationUser);
+          await expect(registerUserPage.accountCreatedHeading).toBeVisible();
+          accountCreated = true;
+          await registerUserPage.continueAfterAccountCreation();
+          await expect(homePage.loggedInAs).toBeVisible();
+        });
+
+        await test.step('Add a product to the cart', async () => {
+          await cartPage.openProducts();
+          await expect(cartPage.allProductsHeading).toBeVisible();
+          await cartPage.addProductToCart(0);
+          await expect(cartPage.addedHeading).toBeVisible();
+          await cartPage.viewCartFromDialog();
+          await expect(page).toHaveURL(new RegExp(`${CART.route}$`));
+          await expect(cartPage.productRow(CART.products[0].name)).toBeVisible();
+        });
+
+        await test.step('Open checkout and verify delivery and billing addresses', async () => {
+          await cartPage.proceedToCheckout();
+          await expect(checkoutPage.deliveryAddressHeading).toBeVisible();
+          await expect(checkoutPage.billingAddressHeading).toBeVisible();
+
+          for (const addressValue of addressValues) {
+            await expect(checkoutPage.addressDetail(addressValue)).toHaveCount(2);
+          }
+        });
+
+        await test.step('Delete the test account and continue', async () => {
+          await homePage.deleteAccount();
+          await expect(homePage.deletedHeading).toBeVisible();
+          accountCreated = false;
+          await registerUserPage.continueAfterAccountDeletion();
+          await expect(page).toHaveTitle(HOME.titlePattern);
+        });
+      });
     });
   });
 });

@@ -95,4 +95,13 @@ export class RegisterUserPage extends BasePage {
       })
       .click();
   }
+
+  async continueAfterAccountDeletion(): Promise<void> {
+    await this.page
+      .getByRole('link', {
+        name: REGISTER_USER.confirmation.continueLinkName,
+        exact: true,
+      })
+      .click();
+  }
 }
