@@ -1,6 +1,8 @@
 import type { Locator, Page } from '@playwright/test';
+import { CART } from '../constants/cart.constants';
 import { DELETE_ACCOUNT } from '../constants/delete-account.constants';
 import { HOME } from '../constants/home.constants';
+import { PRODUCTS } from '../constants/products.constants';
 import { SUBSCRIPTION } from '../constants/subscription.constants';
 import { BasePage } from './base.page';
 
@@ -37,6 +39,35 @@ export class HomePage extends BasePage {
     await this.page
       .getByRole('link', { name: HOME.nav.cartLink })
       .click();
+  }
+
+  get recommendedItemsHeading(): Locator {
+    return this.page.getByRole('heading', {
+      name: PRODUCTS.recommendedItems.heading,
+      exact: true,
+    });
+  }
+
+  get activeRecommendedProductName(): Locator {
+    return this.page.locator(
+      '#recommended-item-carousel .item.active .productinfo p',
+    ).first();
+  }
+
+  get activeRecommendedAddToCartButton(): Locator {
+    return this.page
+      .locator('#recommended-item-carousel .item.active')
+      .getByText(CART.addToCartText, { exact: true })
+      .first();
+  }
+
+  async scrollToRecommendedItems(): Promise<void> {
+    await this.recommendedItemsHeading.scrollIntoViewIfNeeded();
+  }
+
+  async addActiveRecommendedProductToCart(): Promise<void> {
+    await this.activeRecommendedProductName.hover();
+    await this.activeRecommendedAddToCartButton.click();
   }
 
   // ================================== SUBSCRIPTION ===========================

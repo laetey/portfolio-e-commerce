@@ -308,3 +308,57 @@ test.describe('Test Case 21: Add review on product', () => {
     });
   });
 });
+
+test.describe('Test Case 22: Add to cart from Recommended items', () => {
+  test.beforeEach(async ({ page }) => {
+    const homePage = new HomePage(page);
+
+    await page.route('https://googleads.g.doubleclick.net/**', (route) =>
+      route.abort(),
+    );
+
+    await test.step('Open the home page and verify it is visible', async () => {
+      await homePage.gotoHome();
+      await homePage.dismissConsentIfVisible();
+      await expect(page).toHaveTitle(HOME.titlePattern);
+    });
+  });
+
+  test.afterEach(async ({ page }) => {
+    const homePage = new HomePage(page);
+
+    await test.step('Return to the home page after the scenario', async () => {
+      await homePage.gotoHome();
+      await homePage.dismissConsentIfVisible();
+      await expect(page).toHaveTitle(HOME.titlePattern);
+    });
+  });
+
+  test('adds a recommended product to the cart', async ({ page }) => {
+    const homePage = new HomePage(page);
+    const cartPage = new CartPage(page);
+    let recommendedProductName = '';
+
+    await test.step('Scroll to and verify Recommended Items', async () => {
+      await homePage.scrollToRecommendedItems();
+      await expect(homePage.recommendedItemsHeading).toBeVisible();
+      await expect(homePage.activeRecommendedProductName).toBeVisible();
+    });
+
+    await test.step('Add the active recommended product to the cart', async () => {
+      recommendedProductName = (
+        await homePage.activeRecommendedProductName.textContent()
+      )?.trim() ?? '';
+      expect(recommendedProductName).not.toBe('');
+
+      await homePage.addActiveRecommendedProductToCart();
+      await expect(cartPage.addedHeading).toBeVisible();
+    });
+
+    await test.step('Open the cart and verify the recommended product', async () => {
+      await cartPage.viewCartFromDialog();
+      await expect(page).toHaveURL(new RegExp(`${CART.route}$`));
+      await expect(cartPage.productRow(recommendedProductName)).toBeVisible();
+    });
+  });
+});

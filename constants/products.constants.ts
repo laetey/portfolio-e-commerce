@@ -28,6 +28,9 @@ export const PRODUCTS = {
     emailDomain: '@example.com',
     text: 'This product review was submitted by an automated test.',
   },
+  recommendedItems: {
+    heading: 'recommended items',
+  },
   firstProduct: {
     name: 'Blue Top',
     category: 'Category: Women > Tops',
